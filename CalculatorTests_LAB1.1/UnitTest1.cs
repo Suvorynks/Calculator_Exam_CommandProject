@@ -1,24 +1,30 @@
-﻿using System;
-using System.Reflection;
+﻿using AnalaizerClassLibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using AnalaizerClassLibrary;
+using System;
+using System.Reflection;
 
 namespace CalculatorTestsLAB1
 {
     [TestClass]
-    public class PriorityTests
+    public class PriorityTestsClass
     {
-        [DataTestMethod]
-        [DataRow("+", 1)]
-        [DataRow("-", 1)]
-        [DataRow("*", 2)]
-        [DataRow("/", 2)]
-        [DataRow("%", 3)]
-        [DataRow("(", 0)]
-        public void GetPriority_TestDataDriven(string operatorSymbol, int expectedPriority)
+        // Контекст для доступу до бази даних
+        public TestContext TestContext { get; set; }
+
+        [TestMethod]
+        [DataSource("System.Data.SqlClient",
+            @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=CalculatorTestsLAB1;Integrated Security=True",
+            "PriorityTests",
+            DataAccessMethod.Sequential)]
+        public void GetPriority_TestDataDriven()
         {
+            // 1. Беремо дані з твоєї таблиці
+            string operatorSymbol = TestContext.DataRow["Operator"].ToString();
+            int expectedPriority = Convert.ToInt32(TestContext.DataRow["ExpectedPriority"]);
+
+            // 2. Викликаємо метод через рефлексію
             MethodInfo getPriorityMethod = typeof(AnalaizerClass).GetMethod(
-                "GetPriority", 
+                "GetPriority",
                 BindingFlags.NonPublic | BindingFlags.Static);
 
             Assert.IsNotNull(getPriorityMethod, "Метод GetPriority не знайдено!");
@@ -26,7 +32,9 @@ namespace CalculatorTestsLAB1
             object result = getPriorityMethod.Invoke(null, new object[] { operatorSymbol });
             byte actualPriority = Convert.ToByte(result);
 
-            Assert.AreEqual((byte)expectedPriority, actualPriority);
+            // 3. Порівнюємо результат
+            Assert.AreEqual((byte)expectedPriority, actualPriority,
+                $"Помилка для оператора '{operatorSymbol}'. Очікувалось: {expectedPriority}, Отримано: {actualPriority}");
         }
     }
 }
