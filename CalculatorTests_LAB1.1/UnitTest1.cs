@@ -8,7 +8,6 @@ namespace CalculatorTestsLAB1
     [TestClass]
     public class PriorityTestsClass
     {
-        // Контекст для доступу до бази даних
         public TestContext TestContext { get; set; }
 
         [TestMethod]
@@ -18,11 +17,9 @@ namespace CalculatorTestsLAB1
             DataAccessMethod.Sequential)]
         public void GetPriority_TestDataDriven()
         {
-            // 1. Беремо дані з твоєї таблиці
             string operatorSymbol = TestContext.DataRow["Operator"].ToString();
             int expectedPriority = Convert.ToInt32(TestContext.DataRow["ExpectedPriority"]);
 
-            // 2. Викликаємо метод через рефлексію
             MethodInfo getPriorityMethod = typeof(AnalaizerClass).GetMethod(
                 "GetPriority",
                 BindingFlags.NonPublic | BindingFlags.Static);
@@ -32,7 +29,6 @@ namespace CalculatorTestsLAB1
             object result = getPriorityMethod.Invoke(null, new object[] { operatorSymbol });
             byte actualPriority = Convert.ToByte(result);
 
-            // 3. Порівнюємо результат
             Assert.AreEqual((byte)expectedPriority, actualPriority,
                 $"Помилка для оператора '{operatorSymbol}'. Очікувалось: {expectedPriority}, Отримано: {actualPriority}");
         }
