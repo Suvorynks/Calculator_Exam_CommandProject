@@ -1,7 +1,7 @@
-﻿using AnalaizerClassLibrary;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Reflection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using AnalaizerClassLibrary;
 
 namespace CalculatorTestsLAB1
 {
@@ -18,21 +18,22 @@ namespace CalculatorTestsLAB1
             DataAccessMethod.Sequential)]
         public void GetPriority_TestDataDriven()
         {
-            // 1. Беремо дані з твоєї таблиці
+            // 1. Зчитування даних із таблиці MS SQL
             string operatorSymbol = TestContext.DataRow["Operator"].ToString();
             int expectedPriority = Convert.ToInt32(TestContext.DataRow["ExpectedPriority"]);
 
-            // 2. Викликаємо метод через рефлексію
+            // 2. Доступ до приватного методу через рефлексію
             MethodInfo getPriorityMethod = typeof(AnalaizerClass).GetMethod(
                 "GetPriority",
                 BindingFlags.NonPublic | BindingFlags.Static);
 
             Assert.IsNotNull(getPriorityMethod, "Метод GetPriority не знайдено!");
 
+            // 3. Виклик методу та отримання результату
             object result = getPriorityMethod.Invoke(null, new object[] { operatorSymbol });
             byte actualPriority = Convert.ToByte(result);
 
-            // 3. Порівнюємо результат
+            // 4. Перевірка результату
             Assert.AreEqual((byte)expectedPriority, actualPriority,
                 $"Помилка для оператора '{operatorSymbol}'. Очікувалось: {expectedPriority}, Отримано: {actualPriority}");
         }
